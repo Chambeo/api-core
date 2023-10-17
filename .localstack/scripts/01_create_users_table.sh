@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "########### SCRIPT 01 ###########"
-echo "########### Creating table transfer-engine ###########"
+echo "########### Creating table users ###########"
 aws dynamodb --endpoint-url=http://localhost:4566 create-table \
     --table-name users \
     --stream-specification StreamEnabled=true,StreamViewType=NEW_IMAGE \
