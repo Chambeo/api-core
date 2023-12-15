@@ -1,25 +1,18 @@
 version: '3.8'
 
 services:
-
-  localstack:
-    hostname: localstack
-    image: localstack/localstack:1.4
+  postgres:
+    image: postgres:12
+    container_name: chambeo_postgres
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
-      - INIT_SCRIPTS_PATH=/tmp/localstack/scripts
-    ports:
-      - '4566:4566'
-    healthcheck:
-      test: curl --fail http://localhost:4566/_localstack/health
-      interval: 10s
-      retries: 5
+      POSTGRES_USER: chambeo
+      POSTGRES_PASSWORD: chambeo
+      POSTGRES_DB: chambeo
     volumes:
-      - "./.localstack/scripts/:/etc/localstack/init/ready.d/"
-      - "./.localstack/scripts/resources/:/tmp/lambda"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
