@@ -26,7 +26,7 @@ func NewUser(userRepository repository.UserRepositoryInterface) UserServiceInter
 
 func (u *UserService) Create(user *models.UserDto) (*models.UserDto, error) {
 
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 31)
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 16)
 
 	if err != nil {
 		log.Println("error when trying to encrypt password")
