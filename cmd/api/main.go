@@ -36,10 +36,17 @@ func main() {
 		})
 	})
 
-	r.Group("/api/v1").
-		Group("/users").
-		POST("/", userHandler.Create).
-		GET("/", userHandler.Get)
+	v1 := r.Group("/api/v1")
+	{
+		users := v1.Group("/users")
+		{
+			users.POST("/", userHandler.Create)
+			users.GET("/:id", userHandler.Get)
+			users.PUT("/", userHandler.Update)
+			users.DELETE("/:id", userHandler.Delete)
+		}
+
+	}
 
 	err = r.Run(":8080")
 	if err != nil {
