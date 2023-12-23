@@ -55,7 +55,7 @@ func (u *UserService) Get(id string) (*models.UserDto, error) {
 func (u *UserService) Update(user *models.UserDto) (*models.UserDto, error) {
 	updatedUser, err := u.userRepository.Update(mapUserDtoToUserDb(*user))
 	if err != nil {
-		log.Println(fmt.Sprintf("An error occurred trying to update user with id %s", user.Id))
+		log.Println(fmt.Sprintf("An error occurred trying to update user with id %v", user.Id))
 		return nil, errors.New("ocurrio un error al intentar actualizar el usuario")
 	}
 	return mapUserDbToDto(*updatedUser), nil
