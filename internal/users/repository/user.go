@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"log"
-	"time"
 )
 
 type UserRepositoryInterface interface {
@@ -27,10 +26,6 @@ func NewUser(db gorm.DB) UserRepositoryInterface {
 func (u *UserRepository) Create(user *models.User) (*models.User, error) {
 	result := u.DB.Create(&user) // pass pointer of data to Create
 
-	//user.ID             // returns inserted data's primary key
-	//result.Error        // returns error
-	//result.RowsAffected // returns inserted records count
-
 	if result.Error != nil {
 		log.Println("Error on insert user: ", result.Error.Error()) // TODO
 		return nil, errors.New("error al insertar el usuario en DB")
@@ -50,14 +45,14 @@ func (u *UserRepository) Get(id string) (*models.User, error) {
 
 func (u *UserRepository) Update(user *models.User) (*models.User, error) {
 	if tx := u.DB.Updates(user); tx.Error != nil {
-		log.Println(fmt.Sprintf("Error trying to update user with id %s", user.Id))
+		log.Println(fmt.Sprintf("Error trying to update user with id %d", user.ID))
 		return nil, errors.New("error al actualizar el usuario en DB")
 	}
 	return user, nil
 }
 
 func (u *UserRepository) Delete(id string) (*models.User, error) {
-	if tx := u.DB.Model(&models.User{}).Where("id = ?", id).Update("deleted_at", time.Now()); tx.Error != nil {
+	if tx := u.DB.Where("id = ?", id).Delete(&models.User{}); tx.Error != nil {
 		log.Println(fmt.Sprintf("Error trying to delete user with id %s", id))
 		return nil, errors.New("error al intentar eliminar el usuario")
 	}

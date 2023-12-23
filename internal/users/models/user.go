@@ -1,15 +1,13 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type User struct {
-	//gorm.Model
-	Id        int // TODO UUID?
+	gorm.Model
 	FirstName string
 	LastName  string
 	Email     string
 	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
 }
