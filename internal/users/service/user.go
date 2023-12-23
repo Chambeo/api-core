@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -71,26 +72,27 @@ func (u *UserService) Delete(id string) (*models.UserDto, error) {
 
 func mapUserDtoToUserDb(user models.UserDto) *models.User {
 	return &models.User{
-		Id:        user.Id,
+		Model: gorm.Model{
+			ID:        uint(user.Id),
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
 		Password:  user.Password,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		DeletedAt: user.DeletedAt,
 	}
 }
 
 func mapUserDbToDto(user models.User) *models.UserDto {
 	return &models.UserDto{
-		Id:        user.Id,
+		Id:        int(user.Model.ID),
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
 		Password:  user.Password,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
-		DeletedAt: user.DeletedAt,
+		DeletedAt: &user.DeletedAt.Time,
 	}
 }
