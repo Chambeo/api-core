@@ -25,7 +25,7 @@ func NewUserHandler(userService service.UserServiceInterface) UserHandlerInterfa
 }
 func (u *UserHandler) Create(c *gin.Context) {
 	var userDto models.UserDto
-	err := c.Bind(&userDto)
+	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, customError.Error{
 			Code:    customError.InvalidBody,
