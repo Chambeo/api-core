@@ -48,13 +48,14 @@ func (u *UserHandler) Create(c *gin.Context) {
 func (u *UserHandler) Get(c *gin.Context) {
 	userId := c.Param("id")
 
-	if userId == "" {
+	/*if userId == "" {
 		c.JSON(http.StatusBadRequest, customError.Error{
 			Code:    customError.MissingParameter,
 			Message: "Missing or mismatch userId",
 		})
 		return
-	}
+	} TODO ver como mejorar esto ya que nunca cae
+	*/
 
 	user, err := u.userService.Get(userId)
 	if err != nil {
@@ -79,7 +80,7 @@ func (u *UserHandler) Get(c *gin.Context) {
 
 func (u *UserHandler) Update(c *gin.Context) {
 	var userDto models.UserDto
-	err := c.Bind(&userDto)
+	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, customError.Error{
 			Code:    customError.InvalidBody,
@@ -101,14 +102,15 @@ func (u *UserHandler) Update(c *gin.Context) {
 
 func (u *UserHandler) Delete(c *gin.Context) {
 	userId := c.Param("id")
-
-	if userId == "" {
-		c.JSON(http.StatusBadRequest, customError.Error{
-			Code:    customError.MissingParameter,
-			Message: "Missing or mismatch userId",
-		})
-		return
-	}
+	/*
+		if userId == "" {
+			c.JSON(http.StatusBadRequest, customError.Error{
+				Code:    customError.MissingParameter,
+				Message: "Missing or mismatch userId",
+			})
+			return
+		} TODO revisar al igual que el get
+	*/
 
 	user, err := u.userService.Delete(userId)
 	if err != nil {
