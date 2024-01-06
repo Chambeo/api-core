@@ -35,7 +35,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-
+	// TODO segurizar endpoints q apliquen
 	v1 := r.Group("/api/v1")
 	{
 		users := v1.Group("/users")
