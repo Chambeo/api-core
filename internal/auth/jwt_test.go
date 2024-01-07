@@ -7,15 +7,14 @@ import (
 
 func TestGenerateToken(t *testing.T) {
 	result := GenerateToken("meze@gmail.com", "1")
-	issuer, _ := result.Claims.GetIssuer()
 	assert.NotNil(t, result)
-	assert.Equal(t, "chambeo-co", issuer)
 }
 
-func TestGetSignedJWT(t *testing.T) {
-	token := GenerateToken("email@email.com", "1")
+func TestParseToken(t *testing.T) {
+	email := "email@email.com"
+	userID := "1"
+	token := GenerateToken(email, userID)
+	parsedToken := ParseToken(token)
 
-	getSignedToken := GetSignedJWT(token)
-
-	assert.NotNil(t, getSignedToken)
+	assert.Equal(t, email, parsedToken.Claims.(*CustomClaims).Email)
 }

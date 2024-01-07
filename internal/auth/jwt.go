@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(email string, userId string) *jwt.Token {
+func GenerateToken(email string, userId string) string {
 
 	mySigningKey := []byte("secretPassword")
 
@@ -22,8 +23,22 @@ func GenerateToken(email string, userId string) *jwt.Token {
 	ss, err := token.SignedString(mySigningKey)
 	fmt.Println(ss, err)
 
-	return token
+	return ss
 
+}
+
+func ParseToken(tokenString string) *jwt.Token {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secretPassword"), nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	} else if claims, ok := token.Claims.(*CustomClaims); ok {
+		fmt.Println(claims.UserID, claims.RegisteredClaims.Issuer)
+	} else {
+		log.Fatal("unknown claims type, cannot proceed")
+	}
+	return token
 }
 
 func generateClaims(email, userId string) CustomClaims {
@@ -40,9 +55,4 @@ func generateClaims(email, userId string) CustomClaims {
 			Audience:  []string{"chambeo-fe"},
 		},
 	}
-}
-
-func GetSignedJWT(jwt *jwt.Token) string {
-	signedToken, _ := jwt.SigningString()
-	return signedToken
 }
