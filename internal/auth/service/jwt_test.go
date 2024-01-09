@@ -1,4 +1,4 @@
-package auth
+package service
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -6,15 +6,21 @@ import (
 )
 
 func TestGenerateToken(t *testing.T) {
-	result := GenerateToken("meze@gmail.com", "1")
+
+	authService := New()
+
+	result := authService.GenerateToken("meze@gmail.com", "1")
 	assert.NotNil(t, result)
 }
 
 func TestParseToken(t *testing.T) {
+	authService := New()
+
 	email := "email@email.com"
 	userID := "1"
-	token := GenerateToken(email, userID)
-	parsedToken := ParseToken(token)
+
+	token := authService.GenerateToken(email, userID)
+	parsedToken := authService.ParseToken(token)
 
 	assert.Equal(t, email, parsedToken.Claims.(*CustomClaims).Email)
 }

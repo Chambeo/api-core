@@ -1,4 +1,4 @@
-package auth
+package service
 
 import (
 	"fmt"
@@ -13,11 +13,17 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(email string, userId string) string {
+type AuthService struct{}
+
+func New() AuthService {
+	return AuthService{}
+}
+
+func (a *AuthService) GenerateToken(email string, userId string) string {
 
 	mySigningKey := []byte("secretPassword")
 
-	claims := generateClaims(email, userId)
+	claims := a.generateClaims(email, userId)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(mySigningKey)
@@ -27,7 +33,7 @@ func GenerateToken(email string, userId string) string {
 
 }
 
-func ParseToken(tokenString string) *jwt.Token {
+func (a *AuthService) ParseToken(tokenString string) *jwt.Token {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secretPassword"), nil
 	})
@@ -41,7 +47,7 @@ func ParseToken(tokenString string) *jwt.Token {
 	return token
 }
 
-func generateClaims(email, userId string) CustomClaims {
+func (a *AuthService) generateClaims(email, userId string) CustomClaims {
 	return CustomClaims{
 		UserID: userId,
 		Email:  email,
