@@ -150,6 +150,60 @@ func TestUserService_Get(t *testing.T) {
 			tt.asserts(t, result, err, tt.error)
 		})
 	}
+}
+
+func TestUserService_GetByEmail(t *testing.T) {
+
+	tests := []struct {
+		name           string
+		email          string
+		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
+		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
+		response       *models.UserDto
+		error          error
+	}{
+		{
+			name:  "Get by email should return results",
+			email: "meze@email.com",
+			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
+				mockedRepository.On("GetByEmail", mock.Anything).Return(validUserModel, nil)
+			},
+			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+				assert.NotNil(t, response)
+				assert.Nil(t, errorResult)
+			},
+			response: validUserResponse,
+			error:    nil,
+		},
+		{
+			name:  "Get by email should return error",
+			email: "meze@email.com",
+			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
+				mockedRepository.On("GetByEmail", mock.Anything).Return(nil, errors.New("error"))
+			},
+			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+				assert.Nil(t, response)
+				assert.NotNil(t, errorResult)
+				assert.Equal(t, errorResult.Error(), expectedError.Error())
+			},
+			response: nil,
+			error:    errors.New("ocurrio un error al intentar recuperar el usuario"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			userRepository := &MockUserRepository{}
+
+			tt.mockedBehavior(t, &userRepository.Mock)
+
+			userService := NewUser(userRepository)
+
+			result, err := userService.GetByEmail(tt.email)
+
+			tt.asserts(t, result, err, tt.error)
+		})
+	}
 
 }
 
@@ -296,6 +350,14 @@ func (m *MockUserRepository) Delete(id string) (*models.User, error) {
 
 func (m *MockUserRepository) Create(user *models.User) (*models.User, error) {
 	args := m.Called(user)
+	if args.Get(1) != nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.User), args.Error(1)
+}
+
+func (m *MockUserRepository) GetByEmail(email string) (*models.User, error) {
+	args := m.Called(email)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}

@@ -11,6 +11,7 @@ import (
 type UserRepositoryInterface interface {
 	Create(user *models.User) (*models.User, error)
 	Get(id string) (*models.User, error)
+	GetByEmail(id string) (*models.User, error)
 	Update(user *models.User) (*models.User, error)
 	Delete(id string) (*models.User, error)
 }
@@ -38,6 +39,15 @@ func (u *UserRepository) Get(id string) (*models.User, error) {
 	var user *models.User
 	if tx := u.DB.First(&user, id); tx.Error != nil {
 		log.Println(fmt.Sprintf("error retrieving user with id %s %s", id, tx.Error.Error()))
+		return nil, errors.New("error al recuperar el usuario en DB")
+	}
+	return user, nil
+}
+
+func (u *UserRepository) GetByEmail(email string) (*models.User, error) {
+	var user *models.User
+	if tx := u.DB.Where("email = ?", email).First(&user); tx.Error != nil {
+		log.Println(fmt.Sprintf("error retrieving user with email %s %s", email, tx.Error.Error()))
 		return nil, errors.New("error al recuperar el usuario en DB")
 	}
 	return user, nil
