@@ -42,6 +42,7 @@ func main() {
 		{
 			users.POST("/", userHandler.Create)
 			users.GET("/:id", userHandler.Get)
+			users.GET("/email/:email", userHandler.GetByEmail)
 			users.PUT("/", userHandler.Update)
 			users.DELETE("/:id", userHandler.Delete)
 		}
