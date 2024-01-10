@@ -13,6 +13,7 @@ import (
 type UserServiceInterface interface {
 	Create(user *models.UserDto) (*models.UserDto, error)
 	Get(id string) (*models.UserDto, error)
+	GetByEmail(id string) (*models.UserDto, error)
 	Update(user *models.UserDto) (*models.UserDto, error)
 	Delete(id string) (*models.UserDto, error)
 }
@@ -66,6 +67,15 @@ func (u *UserService) Delete(id string) (*models.UserDto, error) {
 	if err != nil {
 		log.Println(fmt.Sprintf("error occurred trying to delete user with id %s", id))
 		return nil, errors.New("ocurrio un error al intentar eliminar el usuario")
+	}
+	return mapUserDbToDto(*user), nil
+}
+
+func (u *UserService) GetByEmail(email string) (*models.UserDto, error) {
+	user, err := u.userRepository.GetByEmail(email)
+	if err != nil {
+		log.Println(fmt.Sprintf("error occurred trying to retrieve user with email %s", email))
+		return nil, errors.New("ocurrio un error al intentar recuperar el usuario")
 	}
 	return mapUserDbToDto(*user), nil
 }

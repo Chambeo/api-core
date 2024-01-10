@@ -192,6 +192,90 @@ func TestUserRepository_Get(t *testing.T) {
 	}
 }
 
+func TestUserRepository_GetByEmail(t *testing.T) {
+	tests := []struct {
+		name           string
+		email          string
+		mockedBehavior func(t *testing.T, mock sqlmock.Sqlmock, id string)
+		asserts        func(t *testing.T, user *models.User, err error)
+	}{
+		{
+			name:  "Test with valid email should return user result",
+			email: "meze@meze.com",
+			mockedBehavior: func(t *testing.T, mock sqlmock.Sqlmock, id string) {
+				rows := sqlmock.NewRows([]string{"id", "first_name", "last_name"}).
+					AddRow(1, "Martin", "Lawyer")
+
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE email = ? AND `users`.`deleted_at` IS NULL ORDER BY `users`.`id` LIMIT 1")).WithArgs(id).
+					WillReturnRows(rows)
+				mock.ExpectCommit()
+			},
+			asserts: func(t *testing.T, user *models.User, err error) {
+				assert.NotNil(t, user)
+				assert.Nil(t, err)
+			},
+		},
+		{
+			name:  "Test with a valid email should return error from db",
+			email: "meze@meze.com",
+			mockedBehavior: func(t *testing.T, mock sqlmock.Sqlmock, id string) {
+
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE email = ? AND `users`.`deleted_at` IS NULL ORDER BY `users`.`id` LIMIT 1")).WithArgs(id).
+					WillReturnError(errors.New("error al recuperar el usuario en DB"))
+				mock.ExpectCommit()
+			},
+			asserts: func(t *testing.T, user *models.User, err error) {
+				assert.Nil(t, user)
+				assert.NotNil(t, err)
+			},
+		},
+		{
+			name:  "Test with a valid email should return no data from db",
+			email: "meze@meze.com",
+			mockedBehavior: func(t *testing.T, mock sqlmock.Sqlmock, id string) {
+				emptyRows := &sqlmock.Rows{}
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE email = ? AND `users`.`deleted_at` IS NULL ORDER BY `users`.`id` LIMIT 1")).WithArgs(id).
+					WillReturnRows(emptyRows)
+				mock.ExpectCommit()
+			},
+			asserts: func(t *testing.T, user *models.User, err error) {
+				assert.Nil(t, user)
+				assert.NotNil(t, err)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer db.Close()
+
+			gormDb, err := gorm.Open(mysql.New(mysql.Config{
+				Conn:                      db,
+				SkipInitializeWithVersion: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Info),
+			})
+
+			if err != nil {
+				t.Error(err.Error())
+			}
+			gormDb.Debug()
+
+			tt.mockedBehavior(t, mock, tt.email)
+
+			repository := NewUser(*gormDb)
+
+			result, err := repository.GetByEmail(tt.email)
+
+			tt.asserts(t, result, err)
+		})
+	}
+}
+
 func TestUserRepository_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -258,7 +342,6 @@ func TestUserRepository_Delete(t *testing.T) {
 			tt.asserts(t, result, err)
 		})
 	}
-
 }
 
 func TestUserRepository_Update(t *testing.T) {
