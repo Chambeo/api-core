@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"log"
@@ -15,11 +16,11 @@ type CustomClaims struct {
 
 type AuthService struct{}
 
-func New() AuthService {
+func NewJWTService() AuthService {
 	return AuthService{}
 }
 
-func (a *AuthService) GenerateToken(email string, userId string) string {
+func (a *AuthService) GenerateToken(email string, userId string) (*string, error) {
 
 	mySigningKey := []byte("secretPassword")
 
@@ -27,9 +28,12 @@ func (a *AuthService) GenerateToken(email string, userId string) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(mySigningKey)
-	fmt.Println(ss, err)
+	if err != nil {
+		log.Println("error trying to generate token")
+		return nil, errors.New("error al intentar generar el token")
+	}
 
-	return ss
+	return &ss, err
 
 }
 

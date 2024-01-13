@@ -7,20 +7,22 @@ import (
 
 func TestGenerateToken(t *testing.T) {
 
-	authService := New()
+	authService := NewJWTService()
 
-	result := authService.GenerateToken("meze@gmail.com", "1")
+	result, err := authService.GenerateToken("meze@gmail.com", "1")
 	assert.NotNil(t, result)
+	assert.NoError(t, err)
 }
 
 func TestParseToken(t *testing.T) {
-	authService := New()
+	authService := NewJWTService()
 
 	email := "email@email.com"
 	userID := "1"
 
-	token := authService.GenerateToken(email, userID)
-	parsedToken := authService.ParseToken(token)
+	token, err := authService.GenerateToken(email, userID)
+	parsedToken := authService.ParseToken(*token)
 
 	assert.Equal(t, email, parsedToken.Claims.(*CustomClaims).Email)
+	assert.NoError(t, err)
 }

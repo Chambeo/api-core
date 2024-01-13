@@ -1,6 +1,8 @@
 package main
 
 import (
+	authHandler "chambeo-api-core/internal/auth/handler"
+	auth "chambeo-api-core/internal/auth/service"
 	"chambeo-api-core/internal/users/handler"
 	"chambeo-api-core/internal/users/repository"
 	"chambeo-api-core/internal/users/service"
@@ -25,9 +27,11 @@ func main() {
 	// Repo
 	userRepository := repository.NewUser(*db)
 	// Service
+	authService := auth.NewJWTService()
 	userService := service.NewUser(userRepository)
 	// Handler
-	userHandler := handler.NewUserHandler(userService)
+	userHandling := handler.NewUserHandler(userService)
+	authHandling := authHandler.NewAuthHandler(&authService, userService)
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -38,13 +42,20 @@ func main() {
 	// TODO segurizar endpoints q apliquen
 	v1 := r.Group("/api/v1")
 	{
-		users := v1.Group("/users")
+		usersRouting := v1.Group("/users")
 		{
-			users.POST("/", userHandler.Create)
-			users.GET("/:id", userHandler.Get)
-			users.GET("/email/:email", userHandler.GetByEmail)
-			users.PUT("/", userHandler.Update)
-			users.DELETE("/:id", userHandler.Delete)
+			usersRouting.POST("/", userHandling.Create)
+			usersRouting.GET("/:id", userHandling.Get)
+			usersRouting.GET("/email/:email", userHandling.GetByEmail)
+			usersRouting.PUT("/", userHandling.Update)
+			usersRouting.DELETE("/:id", userHandling.Delete)
+		}
+
+		authRouting := v1.Group("/auth")
+		{
+			authRouting.POST("/token", authHandling.GenerateToken)
+			authRouting.GET("/token/validate", authHandling.ValidateToken)
+			authRouting.POST("/token/refresh", authHandling.RefreshToken)
 		}
 
 	}
