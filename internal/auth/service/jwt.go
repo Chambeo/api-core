@@ -37,18 +37,22 @@ func (a *AuthService) GenerateToken(email string, userId string) (*string, error
 
 }
 
-func (a *AuthService) ParseToken(tokenString string) *jwt.Token {
+func (a *AuthService) ParseToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secretPassword"), nil
 	})
 	if err != nil {
-		log.Fatal(err)
-	} else if claims, ok := token.Claims.(*CustomClaims); ok {
-		fmt.Println(claims.UserID, claims.RegisteredClaims.Issuer)
-	} else {
-		log.Fatal("unknown claims type, cannot proceed")
+		log.Println("ocurrio un error al intentar parsear el token")
+		return nil, err
 	}
-	return token
+	if claims, ok := token.Claims.(*CustomClaims); ok {
+		log.Println(fmt.Sprintf("Retrieved userID claim is %s", claims.UserID))
+		return token, nil
+	} else {
+		log.Println("ocurrio un error al intentar parsear los claims del token")
+		return nil, errors.New("unknown error occurred trying to parse token claims")
+	}
+
 }
 
 func (a *AuthService) generateClaims(email, userId string) CustomClaims {

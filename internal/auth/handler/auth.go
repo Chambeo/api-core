@@ -19,7 +19,7 @@ type AuthHandlerInterface interface {
 
 type AuthService interface {
 	GenerateToken(email string, userId string) (*string, error)
-	ParseToken(tokenString string) *jwt.Token
+	ParseToken(tokenString string) (*jwt.Token, error)
 }
 
 type AuthHandler struct {
@@ -86,8 +86,38 @@ func (a AuthHandler) RefreshToken(c *gin.Context) {
 }
 
 func (a AuthHandler) ValidateToken(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var tokenToValidate models.TokenRequest
+	err := c.ShouldBindJSON(&tokenToValidate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, customError.Error{
+			Code:    customError.InvalidBody,
+			Message: "Invalid request body",
+		})
+		return
+	}
+
+	jwt, err := a.authService.ParseToken(tokenToValidate.AccessToken)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Error trying to parse token",
+		})
+		return
+	}
+	if jwt != nil {
+		// TODO ??
+	}
+
+	if !jwt.Valid {
+		c.JSON(http.StatusUnauthorized, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Token is not valid",
+		})
+		return
+	}
+
+	// TODO 200??
+	return
 }
 
 func (a AuthHandler) validPassword(requestPassword, retrievedPassword string) bool {
