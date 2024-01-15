@@ -81,8 +81,55 @@ func (a AuthHandler) GenerateToken(c *gin.Context) {
 }
 
 func (a AuthHandler) RefreshToken(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var tokenToValidate models.TokenRequest
+	err := c.ShouldBindJSON(&tokenToValidate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, customError.Error{
+			Code:    customError.InvalidBody,
+			Message: "Invalid request body",
+		})
+		return
+	}
+
+	jwt, err := a.authService.ParseToken(tokenToValidate.AccessToken)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Error trying to parse token",
+		})
+		return
+	}
+
+	if !jwt.Valid {
+		c.JSON(http.StatusInternalServerError, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Error trying to parse token",
+		})
+		return
+	}
+
+	claims, ok := jwt.Claims.(*models.CustomClaims)
+
+	if !ok {
+		c.JSON(http.StatusInternalServerError, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Error trying to parse token claims",
+		})
+		return
+	}
+
+	refreshedToken, err := a.authService.GenerateToken(claims.UserID, claims.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, customError.Error{
+			Code:    customError.ApplicationError,
+			Message: "Error trying to refresh token",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.TokenResponse{AccessToken: *refreshedToken})
+	return
+
 }
 
 func (a AuthHandler) ValidateToken(c *gin.Context) {
@@ -104,9 +151,6 @@ func (a AuthHandler) ValidateToken(c *gin.Context) {
 		})
 		return
 	}
-	if jwt != nil {
-		// TODO ??
-	}
 
 	if !jwt.Valid {
 		c.JSON(http.StatusUnauthorized, customError.Error{
@@ -115,8 +159,6 @@ func (a AuthHandler) ValidateToken(c *gin.Context) {
 		})
 		return
 	}
-
-	// TODO 200??
 	return
 }
 

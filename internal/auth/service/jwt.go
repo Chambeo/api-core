@@ -1,18 +1,13 @@
 package service
 
 import (
+	"chambeo-api-core/internal/auth/models"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"time"
 )
-
-type CustomClaims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
-	jwt.RegisteredClaims
-}
 
 type AuthService struct{}
 
@@ -38,14 +33,14 @@ func (a *AuthService) GenerateToken(email string, userId string) (*string, error
 }
 
 func (a *AuthService) ParseToken(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &models.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secretPassword"), nil
 	})
 	if err != nil {
 		log.Println("ocurrio un error al intentar parsear el token")
 		return nil, err
 	}
-	if claims, ok := token.Claims.(*CustomClaims); ok {
+	if claims, ok := token.Claims.(*models.CustomClaims); ok {
 		log.Println(fmt.Sprintf("Retrieved userID claim is %s", claims.UserID))
 		return token, nil
 	} else {
@@ -55,8 +50,8 @@ func (a *AuthService) ParseToken(tokenString string) (*jwt.Token, error) {
 
 }
 
-func (a *AuthService) generateClaims(email, userId string) CustomClaims {
-	return CustomClaims{
+func (a *AuthService) generateClaims(email, userId string) models.CustomClaims {
+	return models.CustomClaims{
 		UserID: userId,
 		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
