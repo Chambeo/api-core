@@ -2,10 +2,10 @@ package main
 
 import (
 	authHandler "chambeo-api-core/internal/auth/handler"
-	auth "chambeo-api-core/internal/auth/service"
-	"chambeo-api-core/internal/users/handler"
-	"chambeo-api-core/internal/users/repository"
-	"chambeo-api-core/internal/users/service"
+	authService "chambeo-api-core/internal/auth/service"
+	userHandler "chambeo-api-core/internal/users/handler"
+	userRepository "chambeo-api-core/internal/users/repository"
+	userService "chambeo-api-core/internal/users/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,13 +25,13 @@ func main() {
 	}
 
 	// Repo
-	userRepository := repository.NewUser(*db)
+	usrRepository := userRepository.NewUser(*db)
 	// Service
-	authService := auth.NewJWTService()
-	userService := service.NewUser(userRepository)
+	authenticationService := authService.NewJWTService()
+	usrService := userService.NewUser(usrRepository)
 	// Handler
-	userHandling := handler.NewUserHandler(userService)
-	authHandling := authHandler.NewAuthHandler(&authService, userService)
+	usrHandler := userHandler.NewUserHandler(usrService)
+	authenticationHandler := authHandler.NewAuthHandler(&authenticationService, usrService)
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -44,18 +44,18 @@ func main() {
 	{
 		usersRouting := v1.Group("/users")
 		{
-			usersRouting.POST("/", userHandling.Create)
-			usersRouting.GET("/:id", userHandling.Get)
-			usersRouting.GET("/email/:email", userHandling.GetByEmail)
-			usersRouting.PUT("/", userHandling.Update)
-			usersRouting.DELETE("/:id", userHandling.Delete)
+			usersRouting.POST("/", usrHandler.Create)
+			usersRouting.GET("/:id", usrHandler.Get)
+			usersRouting.GET("/email/:email", usrHandler.GetByEmail)
+			usersRouting.PUT("/", usrHandler.Update)
+			usersRouting.DELETE("/:id", usrHandler.Delete)
 		}
 
 		authRouting := v1.Group("/auth")
 		{
-			authRouting.POST("/token", authHandling.GenerateToken)
-			authRouting.GET("/token/validate", authHandling.ValidateToken)
-			authRouting.POST("/token/refresh", authHandling.RefreshToken)
+			authRouting.POST("/token", authenticationHandler.GenerateToken)
+			authRouting.GET("/token/validate", authenticationHandler.ValidateToken)
+			authRouting.POST("/token/refresh", authenticationHandler.RefreshToken)
 		}
 
 	}
