@@ -91,7 +91,7 @@ func (a AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	jwt, err := a.authService.ParseToken(tokenToValidate.AccessToken)
+	jwtToken, err := a.authService.ParseToken(tokenToValidate.AccessToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, customError.Error{
 			Code:    customError.ApplicationError,
@@ -100,15 +100,15 @@ func (a AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	if !jwt.Valid {
+	if !jwtToken.Valid {
 		c.JSON(http.StatusInternalServerError, customError.Error{
 			Code:    customError.ApplicationError,
-			Message: "Error trying to parse token",
+			Message: "Error refreshing token",
 		})
 		return
 	}
 
-	claims, ok := jwt.Claims.(*models.CustomClaims)
+	claims, ok := jwtToken.Claims.(*models.CustomClaims)
 
 	if !ok {
 		c.JSON(http.StatusInternalServerError, customError.Error{
@@ -143,7 +143,7 @@ func (a AuthHandler) ValidateToken(c *gin.Context) {
 		return
 	}
 
-	jwt, err := a.authService.ParseToken(tokenToValidate.AccessToken)
+	parsedToken, err := a.authService.ParseToken(tokenToValidate.AccessToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, customError.Error{
 			Code:    customError.ApplicationError,
@@ -152,7 +152,7 @@ func (a AuthHandler) ValidateToken(c *gin.Context) {
 		return
 	}
 
-	if !jwt.Valid {
+	if !parsedToken.Valid {
 		c.JSON(http.StatusUnauthorized, customError.Error{
 			Code:    customError.ApplicationError,
 			Message: "Token is not valid",
