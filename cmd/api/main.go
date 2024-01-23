@@ -1,9 +1,11 @@
 package main
 
 import (
-	"chambeo-api-core/internal/users/handler"
-	"chambeo-api-core/internal/users/repository"
-	"chambeo-api-core/internal/users/service"
+	authHandler "chambeo-api-core/internal/auth/handler"
+	authService "chambeo-api-core/internal/auth/service"
+	userHandler "chambeo-api-core/internal/users/handler"
+	userRepository "chambeo-api-core/internal/users/repository"
+	userService "chambeo-api-core/internal/users/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,11 +25,13 @@ func main() {
 	}
 
 	// Repo
-	userRepository := repository.NewUser(*db)
+	usrRepository := userRepository.NewUser(*db)
 	// Service
-	userService := service.NewUser(userRepository)
+	authenticationService := authService.NewJWTService()
+	usrService := userService.NewUser(usrRepository)
 	// Handler
-	userHandler := handler.NewUserHandler(userService)
+	usrHandler := userHandler.NewUserHandler(usrService)
+	authenticationHandler := authHandler.NewAuthHandler(&authenticationService, usrService)
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -38,13 +42,20 @@ func main() {
 	// TODO segurizar endpoints q apliquen
 	v1 := r.Group("/api/v1")
 	{
-		users := v1.Group("/users")
+		usersRouting := v1.Group("/users")
 		{
-			users.POST("/", userHandler.Create)
-			users.GET("/:id", userHandler.Get)
-			users.GET("/email/:email", userHandler.GetByEmail)
-			users.PUT("/", userHandler.Update)
-			users.DELETE("/:id", userHandler.Delete)
+			usersRouting.POST("/", usrHandler.Create)
+			usersRouting.GET("/:id", usrHandler.Get)
+			usersRouting.GET("/email/:email", usrHandler.GetByEmail)
+			usersRouting.PUT("/", usrHandler.Update)
+			usersRouting.DELETE("/:id", usrHandler.Delete)
+		}
+
+		authRouting := v1.Group("/auth")
+		{
+			authRouting.POST("/token", authenticationHandler.GenerateToken)
+			authRouting.GET("/token/validate", authenticationHandler.ValidateToken)
+			authRouting.POST("/token/refresh", authenticationHandler.RefreshToken)
 		}
 
 	}
