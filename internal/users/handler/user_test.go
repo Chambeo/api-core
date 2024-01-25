@@ -58,7 +58,7 @@ func TestUserHandler_Create(t *testing.T) {
 		},
 		{
 			name:                       "Test with invalid body should return 400",
-			requestBody:                `}{,`,
+			requestBody:                `{"color":"rosa"}`,
 			expectedBodyResponse:       "",
 			mockedBehavior:             func(t *testing.T, mockedService *mock.Mock) {},
 			expectedHttpStatusResponse: http.StatusBadRequest,
