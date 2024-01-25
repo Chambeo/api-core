@@ -40,7 +40,7 @@ func TestAuthHandler_GenerateToken(t *testing.T) {
 			expectedBodyResponse:       "",
 			expectedHttpStatusResponse: http.StatusOK,
 			mockedBehavior: func(t *testing.T, userMock, authMock *mock.Mock) {
-				userMock.On("GetByEmail", mock.Anything).Return(&models.UserDto{
+				userMock.On("GetByEmail", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -100,7 +100,7 @@ func TestAuthHandler_GenerateToken(t *testing.T) {
 			expectedBodyResponse:       `{"code":"ERROR","message":"Invalid credentials"}`,
 			expectedHttpStatusResponse: http.StatusUnauthorized,
 			mockedBehavior: func(t *testing.T, userMock, authMock *mock.Mock) {
-				userMock.On("GetByEmail", mock.Anything).Return(&models.UserDto{
+				userMock.On("GetByEmail", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -122,7 +122,7 @@ func TestAuthHandler_GenerateToken(t *testing.T) {
 			expectedBodyResponse:       `{"code":"ERROR","message":"Error trying to generate token"}`,
 			expectedHttpStatusResponse: http.StatusInternalServerError,
 			mockedBehavior: func(t *testing.T, userMock, authMock *mock.Mock) {
-				userMock.On("GetByEmail", mock.Anything).Return(&models.UserDto{
+				userMock.On("GetByEmail", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -462,45 +462,45 @@ type MockUserService struct {
 	mock.Mock
 }
 
-func (m *MockUserService) Get(id string) (*models.UserDto, error) {
+func (m *MockUserService) Get(id string) (*models.UserRequest, error) {
 	args := m.Called(id)
 	if args.Get(1) != nil || args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Update(user *models.UserDto) (*models.UserDto, error) {
+func (m *MockUserService) Update(user *models.UserRequest) (*models.UserRequest, error) {
 	args := m.Called(user)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Delete(id string) (*models.UserDto, error) {
+func (m *MockUserService) Delete(id string) (*models.UserRequest, error) {
 	args := m.Called(id)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Create(user *models.UserDto) (*models.UserDto, error) {
+func (m *MockUserService) Create(user *models.UserRequest) (*models.UserRequest, error) {
 	args := m.Called(user)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) GetByEmail(email string) (*models.UserDto, error) {
+func (m *MockUserService) GetByEmail(email string) (*models.UserRequest, error) {
 	args := m.Called(email)
 	if args.Get(1) != nil || args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
 type MockAuthService struct {

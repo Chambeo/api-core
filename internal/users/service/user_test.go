@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	validUserRequest = &models.UserDto{
+	validUserRequest = &models.UserRequest{
 		Id:        1,
 		FirstName: "Meze",
 		LastName:  "Lawyer",
@@ -19,7 +19,7 @@ var (
 		Password:  "password",
 	}
 
-	validUserResponse = &models.UserDto{
+	validUserResponse = &models.UserRequest{
 		Id:        1,
 		FirstName: "Meze",
 		LastName:  "Lawyer",
@@ -45,9 +45,9 @@ func TestUserService_Create(t *testing.T) {
 	tests := []struct {
 		name           string
 		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
-		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
-		request        *models.UserDto
-		response       *models.UserDto
+		asserts        func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error)
+		request        *models.UserRequest
+		response       *models.UserRequest
 		error          error
 	}{
 		{
@@ -55,7 +55,7 @@ func TestUserService_Create(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Create", mock.Anything).Return(validUserModel, nil)
 			},
-			asserts: func(t *testing.T, response *models.UserDto, error error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, error error, expectedError error) {
 				assert.NotNil(t, response)
 				assert.Nil(t, error)
 				assert.Equal(t, validUserResponse, response)
@@ -69,7 +69,7 @@ func TestUserService_Create(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Create", mock.Anything).Return(nil, errors.New("error from repo"))
 			},
-			asserts: func(t *testing.T, response *models.UserDto, error error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, error error, expectedError error) {
 				assert.Nil(t, response)
 				assert.NotNil(t, error)
 				assert.Equal(t, error.Error(), expectedError.Error())
@@ -104,8 +104,8 @@ func TestUserService_Get(t *testing.T) {
 		name           string
 		id             string
 		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
-		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
-		response       *models.UserDto
+		asserts        func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error)
+		response       *models.UserRequest
 		error          error
 	}{
 		{
@@ -114,7 +114,7 @@ func TestUserService_Get(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Get", mock.Anything).Return(validUserModel, nil)
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.NotNil(t, response)
 				assert.Nil(t, errorResult)
 			},
@@ -127,7 +127,7 @@ func TestUserService_Get(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Get", mock.Anything).Return(nil, errors.New("error"))
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.Nil(t, response)
 				assert.NotNil(t, errorResult)
 				assert.Equal(t, errorResult.Error(), expectedError.Error())
@@ -158,8 +158,8 @@ func TestUserService_GetByEmail(t *testing.T) {
 		name           string
 		email          string
 		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
-		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
-		response       *models.UserDto
+		asserts        func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error)
+		response       *models.UserRequest
 		error          error
 	}{
 		{
@@ -168,7 +168,7 @@ func TestUserService_GetByEmail(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("GetByEmail", mock.Anything).Return(validUserModel, nil)
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.NotNil(t, response)
 				assert.Nil(t, errorResult)
 			},
@@ -181,7 +181,7 @@ func TestUserService_GetByEmail(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("GetByEmail", mock.Anything).Return(nil, errors.New("error"))
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.Nil(t, response)
 				assert.NotNil(t, errorResult)
 				assert.Equal(t, errorResult.Error(), expectedError.Error())
@@ -212,9 +212,9 @@ func TestUserService_Update(t *testing.T) {
 	tests := []struct {
 		name           string
 		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
-		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
-		request        *models.UserDto
-		response       *models.UserDto
+		asserts        func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error)
+		request        *models.UserRequest
+		response       *models.UserRequest
 		error          error
 	}{
 		{
@@ -222,7 +222,7 @@ func TestUserService_Update(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Update", mock.Anything).Return(validUserModel, nil)
 			},
-			asserts: func(t *testing.T, response *models.UserDto, error error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, error error, expectedError error) {
 				assert.NotNil(t, response)
 				assert.Nil(t, error)
 				assert.Equal(t, validUserResponse, response)
@@ -236,7 +236,7 @@ func TestUserService_Update(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Update", mock.Anything).Return(nil, errors.New("error from repo"))
 			},
-			asserts: func(t *testing.T, response *models.UserDto, error error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, error error, expectedError error) {
 				assert.Nil(t, response)
 				assert.NotNil(t, error)
 				assert.Equal(t, error.Error(), expectedError.Error())
@@ -271,8 +271,8 @@ func TestUserService_Delete(t *testing.T) {
 		name           string
 		id             string
 		mockedBehavior func(t *testing.T, mockedRepository *mock.Mock)
-		asserts        func(t *testing.T, response *models.UserDto, errorResult error, expectedError error)
-		response       *models.UserDto
+		asserts        func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error)
+		response       *models.UserRequest
 		error          error
 	}{
 		{
@@ -281,7 +281,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Delete", mock.Anything).Return(validUserModel, nil)
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.NotNil(t, response)
 				assert.Nil(t, errorResult)
 			},
@@ -294,7 +294,7 @@ func TestUserService_Delete(t *testing.T) {
 			mockedBehavior: func(t *testing.T, mockedRepository *mock.Mock) {
 				mockedRepository.On("Delete", mock.Anything).Return(nil, errors.New("error"))
 			},
-			asserts: func(t *testing.T, response *models.UserDto, errorResult error, expectedError error) {
+			asserts: func(t *testing.T, response *models.UserRequest, errorResult error, expectedError error) {
 				assert.Nil(t, response)
 				assert.NotNil(t, errorResult)
 				assert.Equal(t, errorResult.Error(), expectedError.Error())

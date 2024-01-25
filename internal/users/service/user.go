@@ -11,11 +11,11 @@ import (
 )
 
 type UserServiceInterface interface {
-	Create(user *models.UserDto) (*models.UserDto, error)
-	Get(id string) (*models.UserDto, error)
-	GetByEmail(id string) (*models.UserDto, error)
-	Update(user *models.UserDto) (*models.UserDto, error)
-	Delete(id string) (*models.UserDto, error)
+	Create(user *models.UserRequest) (*models.UserRequest, error)
+	Get(id string) (*models.UserRequest, error)
+	GetByEmail(id string) (*models.UserRequest, error)
+	Update(user *models.UserRequest) (*models.UserRequest, error)
+	Delete(id string) (*models.UserRequest, error)
 }
 
 type UserService struct {
@@ -26,7 +26,7 @@ func NewUser(userRepository repository.UserRepositoryInterface) UserServiceInter
 	return &UserService{userRepository: userRepository}
 }
 
-func (u *UserService) Create(user *models.UserDto) (*models.UserDto, error) {
+func (u *UserService) Create(user *models.UserRequest) (*models.UserRequest, error) {
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 16)
 
@@ -44,7 +44,7 @@ func (u *UserService) Create(user *models.UserDto) (*models.UserDto, error) {
 	return mapUserDbToDto(*create), nil
 }
 
-func (u *UserService) Get(id string) (*models.UserDto, error) {
+func (u *UserService) Get(id string) (*models.UserRequest, error) {
 	user, err := u.userRepository.Get(id)
 	if err != nil {
 		log.Println(fmt.Sprintf("error occurred trying to retrieve user with id %s", id))
@@ -53,7 +53,7 @@ func (u *UserService) Get(id string) (*models.UserDto, error) {
 	return mapUserDbToDto(*user), nil
 }
 
-func (u *UserService) Update(user *models.UserDto) (*models.UserDto, error) {
+func (u *UserService) Update(user *models.UserRequest) (*models.UserRequest, error) {
 	updatedUser, err := u.userRepository.Update(mapUserDtoToUserDb(*user))
 	if err != nil {
 		log.Println(fmt.Sprintf("An error occurred trying to update user with id %v", user.Id))
@@ -62,7 +62,7 @@ func (u *UserService) Update(user *models.UserDto) (*models.UserDto, error) {
 	return mapUserDbToDto(*updatedUser), nil
 }
 
-func (u *UserService) Delete(id string) (*models.UserDto, error) {
+func (u *UserService) Delete(id string) (*models.UserRequest, error) {
 	user, err := u.userRepository.Delete(id)
 	if err != nil {
 		log.Println(fmt.Sprintf("error occurred trying to delete user with id %s", id))
@@ -71,7 +71,7 @@ func (u *UserService) Delete(id string) (*models.UserDto, error) {
 	return mapUserDbToDto(*user), nil
 }
 
-func (u *UserService) GetByEmail(email string) (*models.UserDto, error) {
+func (u *UserService) GetByEmail(email string) (*models.UserRequest, error) {
 	user, err := u.userRepository.GetByEmail(email)
 	if err != nil {
 		log.Println(fmt.Sprintf("error occurred trying to retrieve user with email %s", email))
@@ -80,7 +80,7 @@ func (u *UserService) GetByEmail(email string) (*models.UserDto, error) {
 	return mapUserDbToDto(*user), nil
 }
 
-func mapUserDtoToUserDb(user models.UserDto) *models.User {
+func mapUserDtoToUserDb(user models.UserRequest) *models.User {
 	return &models.User{
 		Model: gorm.Model{
 			ID:        uint(user.Id),
@@ -94,8 +94,8 @@ func mapUserDtoToUserDb(user models.UserDto) *models.User {
 	}
 }
 
-func mapUserDbToDto(user models.User) *models.UserDto {
-	return &models.UserDto{
+func mapUserDbToDto(user models.User) *models.UserRequest {
+	return &models.UserRequest{
 		Id:        int(user.Model.ID),
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
