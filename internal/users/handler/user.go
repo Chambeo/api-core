@@ -6,7 +6,6 @@ import (
 	"chambeo-api-core/pkg/customError"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -27,8 +26,6 @@ func NewUserHandler(userService service.UserServiceInterface) UserHandlerInterfa
 }
 func (u *UserHandler) Create(c *gin.Context) {
 
-	validate := validator.New()
-
 	var userDto models.UserRequest
 	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
@@ -37,13 +34,6 @@ func (u *UserHandler) Create(c *gin.Context) {
 			Message: "Invalid request body",
 		})
 		return
-	}
-
-	err = validate.Struct(userDto)
-	//validationErrors := err.(validator.ValidationErrors)
-
-	if err != nil {
-		print("ERROR PAPA")
 	}
 
 	user, err := u.userService.Create(&userDto)
