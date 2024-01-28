@@ -40,7 +40,7 @@ func TestUserHandler_Create(t *testing.T) {
 			expectedBodyResponse:       `{"id":1,"first_name":"Meze","last_name":"Lawyer","email":"meze@email.com","password":"password","created_at":"2024-01-05T23:01:41.9180793-03:00","updated_at":"2024-01-05T23:01:41.9180793-03:00"}`,
 			expectedHttpStatusResponse: http.StatusCreated,
 			mockedBehavior: func(t *testing.T, mockedService *mock.Mock) {
-				mockedService.On("Create", mock.Anything).Return(&models.UserDto{
+				mockedService.On("Create", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -58,7 +58,7 @@ func TestUserHandler_Create(t *testing.T) {
 		},
 		{
 			name:                       "Test with invalid body should return 400",
-			requestBody:                `}{,`,
+			requestBody:                `{`,
 			expectedBodyResponse:       "",
 			mockedBehavior:             func(t *testing.T, mockedService *mock.Mock) {},
 			expectedHttpStatusResponse: http.StatusBadRequest,
@@ -135,7 +135,7 @@ func TestUserHandler_Update(t *testing.T) {
 			expectedBodyResponse:       `{"id":1,"first_name":"Meze","last_name":"Lawyer","email":"meze@email.com","password":"password","created_at":"2024-01-05T23:01:41.9180793-03:00","updated_at":"2024-01-05T23:01:41.9180793-03:00"}`,
 			expectedHttpStatusResponse: http.StatusOK,
 			mockedBehavior: func(t *testing.T, mockedService *mock.Mock) {
-				mockedService.On("Update", mock.Anything).Return(&models.UserDto{
+				mockedService.On("Update", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -224,7 +224,7 @@ func TestUserHandler_Get(t *testing.T) {
 			expectedBodyResponse:       `{"id":1,"first_name":"Meze","last_name":"Lawyer","email":"meze@email.com","password":"password","created_at":"2024-01-05T23:01:41.9180793-03:00","updated_at":"2024-01-05T23:01:41.9180793-03:00"}`,
 			expectedHttpStatusResponse: http.StatusOK,
 			mockedBehavior: func(t *testing.T, mockedService *mock.Mock) {
-				mockedService.On("Get", mock.Anything).Return(&models.UserDto{
+				mockedService.On("Get", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -317,7 +317,7 @@ func TestUserHandler_Delete(t *testing.T) {
 			expectedBodyResponse:       "",
 			expectedHttpStatusResponse: http.StatusNoContent,
 			mockedBehavior: func(t *testing.T, mockedService *mock.Mock) {
-				mockedService.On("Delete", mock.Anything).Return(&models.UserDto{}, nil)
+				mockedService.On("Delete", mock.Anything).Return(&models.UserRequest{}, nil)
 			},
 			asserts: func(t *testing.T, response *httptest.ResponseRecorder, expectedHttpStatusResponse int, expectedBody string) {
 				assert.Equal(t, expectedHttpStatusResponse, response.Code)
@@ -390,7 +390,7 @@ func TestUserHandler_GetByEmail(t *testing.T) {
 			expectedBodyResponse:       `{"id":1,"first_name":"Meze","last_name":"Lawyer","email":"meze@email.com","password":"password","created_at":"2024-01-05T23:01:41.9180793-03:00","updated_at":"2024-01-05T23:01:41.9180793-03:00"}`,
 			expectedHttpStatusResponse: http.StatusOK,
 			mockedBehavior: func(t *testing.T, mockedService *mock.Mock) {
-				mockedService.On("GetByEmail", mock.Anything).Return(&models.UserDto{
+				mockedService.On("GetByEmail", mock.Anything).Return(&models.UserRequest{
 					Id:        1,
 					FirstName: "Meze",
 					LastName:  "Lawyer",
@@ -496,43 +496,43 @@ type MockUserService struct {
 	mock.Mock
 }
 
-func (m *MockUserService) Get(id string) (*models.UserDto, error) {
+func (m *MockUserService) Get(id string) (*models.UserRequest, error) {
 	args := m.Called(id)
 	if args.Get(1) != nil || args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Update(user *models.UserDto) (*models.UserDto, error) {
+func (m *MockUserService) Update(user *models.UserRequest) (*models.UserRequest, error) {
 	args := m.Called(user)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Delete(id string) (*models.UserDto, error) {
+func (m *MockUserService) Delete(id string) (*models.UserRequest, error) {
 	args := m.Called(id)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) Create(user *models.UserDto) (*models.UserDto, error) {
+func (m *MockUserService) Create(user *models.UserRequest) (*models.UserRequest, error) {
 	args := m.Called(user)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }
 
-func (m *MockUserService) GetByEmail(email string) (*models.UserDto, error) {
+func (m *MockUserService) GetByEmail(email string) (*models.UserRequest, error) {
 	args := m.Called(email)
 	if args.Get(1) != nil || args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.UserDto), args.Error(1)
+	return args.Get(0).(*models.UserRequest), args.Error(1)
 }

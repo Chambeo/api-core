@@ -25,7 +25,8 @@ func NewUserHandler(userService service.UserServiceInterface) UserHandlerInterfa
 	return &UserHandler{userService}
 }
 func (u *UserHandler) Create(c *gin.Context) {
-	var userDto models.UserDto
+
+	var userDto models.UserRequest
 	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, customError.Error{
@@ -34,6 +35,7 @@ func (u *UserHandler) Create(c *gin.Context) {
 		})
 		return
 	}
+
 	user, err := u.userService.Create(&userDto)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, customError.Error{
@@ -79,7 +81,7 @@ func (u *UserHandler) Get(c *gin.Context) {
 }
 
 func (u *UserHandler) Update(c *gin.Context) {
-	var userDto models.UserDto
+	var userDto models.UserRequest
 	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, customError.Error{
