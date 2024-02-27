@@ -28,10 +28,10 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(authService AuthService, userService service.UserServiceInterface) AuthHandlerInterface {
-	return AuthHandler{authService: authService, userService: userService}
+	return &AuthHandler{authService: authService, userService: userService}
 }
 
-func (a AuthHandler) GenerateToken(c *gin.Context) {
+func (a *AuthHandler) GenerateToken(c *gin.Context) {
 	var userDto models.UserLogin
 	err := c.ShouldBindJSON(&userDto)
 	if err != nil {
@@ -80,7 +80,7 @@ func (a AuthHandler) GenerateToken(c *gin.Context) {
 	return
 }
 
-func (a AuthHandler) RefreshToken(c *gin.Context) {
+func (a *AuthHandler) RefreshToken(c *gin.Context) {
 	var tokenToValidate models.TokenRequest
 	err := c.ShouldBindJSON(&tokenToValidate)
 	if err != nil {
@@ -132,7 +132,7 @@ func (a AuthHandler) RefreshToken(c *gin.Context) {
 
 }
 
-func (a AuthHandler) ValidateToken(c *gin.Context) {
+func (a *AuthHandler) ValidateToken(c *gin.Context) {
 	var tokenToValidate models.TokenRequest
 	err := c.ShouldBindJSON(&tokenToValidate)
 	if err != nil {
@@ -162,7 +162,7 @@ func (a AuthHandler) ValidateToken(c *gin.Context) {
 	return
 }
 
-func (a AuthHandler) validPassword(requestPassword, retrievedPassword string) bool {
+func (a *AuthHandler) validPassword(requestPassword, retrievedPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(retrievedPassword), []byte(requestPassword))
 	if err != nil {
 		return false
